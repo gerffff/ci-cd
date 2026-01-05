@@ -55,4 +55,4 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: <app_service_name>
-          images: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
+          images: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest 
