@@ -1,0 +1,45 @@
+name: Build and Publish Docker image
+
+on:
+  workflow_dispatch: {}              
+  push:
+    branches:
+      - main
+      - 'feature/*'                 
+
+permissions:
+  contents: read
+  packages: write                 
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'        
+
+      - name: Install pnpm, install deps and build
+        run: |
+          npm install -g pnpm@latest
+          pnpm install
+          pnpm run build
+        # всі три команди виконуються в одному скрипті
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}    
+          password: ${{ secrets.GITHUB_TOKEN }}    
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}
